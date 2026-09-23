@@ -1,0 +1,12 @@
+node_modules/
+build*/
+renders/
+fin_frames/
+stills/
+public/assets/*/audio.wav
+audio/cache/
+
+# local setup output (bin/setup writes the detected browser here)
+.env
+fin_count.txt
+render.done

@@ -1,0 +1,153 @@
+{
+ "fps": 30,
+ "total_frames": 991,
+ "engine": "kokoro",
+ "voice": "am_liam",
+ "rate": 1.0,
+ "gap": 10,
+ "chapter_gap": 45,
+ "lead": 40,
+ "tail": 90,
+ "lang": "en",
+ "chapters": [
+  {
+   "n": 1,
+   "title": "The problem",
+   "from": 86
+  },
+  {
+   "n": 2,
+   "title": "The pipeline",
+   "from": 507
+  }
+ ],
+ "sentences": [
+  {
+   "id": "S01",
+   "chapter": 1,
+   "from": 86,
+   "to": 207,
+   "text": "A language model answers from memory. Its knowledge has a cutoff.",
+   "subs": [
+    {
+     "from": 86,
+     "to": 156,
+     "text": "A language model answers from memory."
+    },
+    {
+     "from": 157,
+     "to": 207,
+     "text": "Its knowledge has a cutoff."
+    }
+   ]
+  },
+  {
+   "id": "S02",
+   "chapter": 1,
+   "from": 218,
+   "to": 321,
+   "text": "Ask about last week, and it may invent an answer.",
+   "subs": [
+    {
+     "from": 218,
+     "to": 266,
+     "text": "Ask about last week,"
+    },
+    {
+     "from": 267,
+     "to": 321,
+     "text": "and it may invent an answer."
+    }
+   ]
+  },
+  {
+   "id": "S03",
+   "chapter": 1,
+   "from": 332,
+   "to": 451,
+   "text": "Retrieval-augmented generation gives the model an open book.",
+   "subs": [
+    {
+     "from": 332,
+     "to": 393,
+     "text": "Retrieval-augmented generation"
+    },
+    {
+     "from": 394,
+     "to": 451,
+     "text": "gives the model an open book."
+    }
+   ]
+  },
+  {
+   "id": "S04",
+   "chapter": 2,
+   "from": 507,
+   "to": 637,
+   "text": "Index. Documents are split into chunks and stored as vectors.",
+   "subs": [
+    {
+     "from": 507,
+     "to": 533,
+     "text": "Index."
+    },
+    {
+     "from": 534,
+     "to": 589,
+     "text": "Documents are split into chunks"
+    },
+    {
+     "from": 590,
+     "to": 637,
+     "text": "and stored as vectors."
+    }
+   ]
+  },
+  {
+   "id": "S05",
+   "chapter": 2,
+   "from": 648,
+   "to": 740,
+   "text": "Retrieve. The question finds the closest chunks.",
+   "subs": [
+    {
+     "from": 648,
+     "to": 677,
+     "text": "Retrieve."
+    },
+    {
+     "from": 678,
+     "to": 740,
+     "text": "The question finds the closest chunks."
+    }
+   ]
+  },
+  {
+   "id": "S06",
+   "chapter": 2,
+   "from": 751,
+   "to": 890,
+   "text": "Generate. The answer is written from those passages, with citations.",
+   "subs": [
+    {
+     "from": 751,
+     "to": 778,
+     "text": "Generate."
+    },
+    {
+     "from": 779,
+     "to": 850,
+     "text": "The answer is written from those passages,"
+    },
+    {
+     "from": 851,
+     "to": 890,
+     "text": "with citations."
+    }
+   ]
+  }
+ ],
+ "chars": 288,
+ "words": 56,
+ "speech_sec": 23.68
+}

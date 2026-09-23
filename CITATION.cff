@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use anythingtoexplainer in your work, please cite it as below."
+title: "anythingtoexplainer"
+type: software
+authors:
+  - family-names: Wei
+    given-names: Yihao
+    alias: Vincentwei1021
+repository-code: "https://github.com/lankyjo/anythingtoexplainer"
+url: "https://github.com/lankyjo/anythingtoexplainer"
+abstract: >-
+  An agent skill that turns any topic into a narrated motion-graphics explainer
+  video, English only. Three selectable visual packs (paper, instrument,
+  poster) on a warm light canvas; every frame is drawn in code with Remotion
+  (React + TypeScript), with local kokoro-82m voiceover, subtitles and a
+  chapter progress bar. Ships a compilable template, pack chrome and
+  primitives, voiceover / storyboard / render / QC tooling, written style and
+  motion specs, agent build and QC protocols, and three sample films.
+keywords:
+  - agent-skill
+  - explainer-video
+  - motion-graphics
+  - remotion
+  - text-to-speech
+license: PolyForm-Noncommercial-1.0.0

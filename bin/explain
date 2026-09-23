@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Start an explainer film from the terminal:
+#   bin/explain "topic" [--style paper|instrument|poster] [--minutes 3] [--agent opencode|claude|codex]
+#
+#
+# Install the skill into your agent first (the skills CLI is the standard path; verified with
+# claude-code and opencode):
+#   npx skills@latest add <owner>/anythingtoexplainer --agent claude-code --agent opencode -y
+# Harnesses without that CLI: symlink this repo into the harness's skills directory, e.g.
+#   ln -s "$(pwd)" ~/.config/opencode/skills/anythingtoexplainer
+#   ln -s "$(pwd)" ~/.claude/skills/anythingtoexplainer
+#
+# It builds the prompt and hands it to whichever agent CLI is installed. With no agent CLI it prints
+# the prompt so it can be pasted into any harness. Set A2E_AGENT to force one.
+set -uo pipefail
+
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+TOPIC=""
+STYLE=""
+MINUTES=""
+AGENT="${A2E_AGENT:-}"
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --style) STYLE=${2:-}; shift 2 ;;
+    --minutes) MINUTES=${2:-}; shift 2 ;;
+    --agent) AGENT=${2:-}; shift 2 ;;
+    -h|--help) sed -n '2,6p' "$0"; exit 0 ;;
+    *) [ -z "$TOPIC" ] && TOPIC=$1 || { echo "unexpected argument: $1"; exit 2; }; shift ;;
+  esac
+done
+
+if [ -z "$TOPIC" ]; then
+  echo "usage: bin/explain \"topic\" [--style paper|instrument|poster] [--minutes 2-5] [--agent name]"
+  exit 2
+fi
+
+PROMPT="Use the anythingtoexplainer skill at $ROOT to make an explainer video about: $TOPIC."
+[ -n "$STYLE" ] && PROMPT="$PROMPT Style pack: $STYLE."
+[ -n "$MINUTES" ] && PROMPT="$PROMPT Target length: about $MINUTES minutes (the cap is 5)."
+PROMPT="$PROMPT Follow SKILL.md, including its checkpoints: confirm style and duration before writing anything, and show me the 30-second preview before building the rest."
+
+if [ -z "$AGENT" ]; then
+  for c in opencode claude codex; do command -v "$c" >/dev/null 2>&1 && { AGENT=$c; break; }; done
+fi
+
+case "$AGENT" in
+  opencode) exec opencode run "$PROMPT" ;;
+  claude) exec claude -p "$PROMPT" ;;
+  codex) exec codex exec "$PROMPT" ;;
+  *)
+    echo "$PROMPT"
+    echo
+    echo "(no agent CLI found - paste the prompt above into your agent, or set A2E_AGENT)"
+    ;;
+esac

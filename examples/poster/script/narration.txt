@@ -1,0 +1,8 @@
+# CHAPTER 1 The problem
+A language model answers from memory.|Its knowledge has a cutoff.
+Ask about last week,|and it may invent an answer.
+Retrieval-augmented generation|gives the model an open book.
+# CHAPTER 2 The pipeline
+Index.|Documents are split into chunks|and stored as vectors.
+Retrieve.|The question finds the closest chunks.
+Generate.|The answer is written from those passages,|with citations.

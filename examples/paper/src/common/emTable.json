@@ -1,0 +1,11 @@
+{
+  "comment": "Average per-character em widths, measured with fontTools on the bundled fonts (Noto Sans SC at wght 700-900). Shared by src/common/textfit.ts and scripts/tts_build.py - edit once, both read it.",
+  "fullWidthFrom": 8192,
+  "fullWidth": 1,
+  "space": 0.227,
+  "upper": 0.668,
+  "digit": 0.59,
+  "lower": 0.566,
+  "accented": 0.58,
+  "punct": 0.325
+}

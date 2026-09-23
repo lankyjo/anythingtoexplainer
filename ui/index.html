@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>anythingtoexplainer</title>
+<style>
+  :root {
+    --bg: #F6F4F1; --ink: #141414; --muted: #8A857E; --hair: #DAD5CE; --ring: #E7E2DA; --accent: #E2543B;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  header { padding: 28px 32px 18px; border-bottom: 1px solid var(--hair); display: flex; align-items: baseline; gap: 18px; }
+  h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  header .where { color: var(--muted); font-size: 13px; margin-left: auto; font-variant-numeric: tabular-nums; }
+  main { padding: 28px 32px 64px; display: grid; gap: 28px; grid-template-columns: minmax(320px, 420px) 1fr; align-items: start; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  section { border-top: 1px solid var(--hair); padding-top: 16px; }
+  h2 { font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  input[type="text"], input[type="number"], select { width: 100%; padding: 9px 10px; border: 1px solid var(--hair); background: transparent; color: var(--ink); font: inherit; border-radius: 0; }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; }
+  .checks { display: flex; gap: 18px; align-items: center; margin-top: 12px; font-size: 14px; }
+  button { background: var(--ink); color: #fff; border: 0; padding: 10px 16px; font: inherit; cursor: pointer; }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--hair); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .prompt { margin-top: 14px; font-size: 13px; border: 1px solid var(--hair); padding: 12px; display: none; }
+  .prompt pre { white-space: pre-wrap; margin: 0 0 10px; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .proj { border: 1px solid var(--hair); padding: 18px; margin-bottom: 16px; }
+  .proj h3 { margin: 0 0 2px; font-size: 17px; font-weight: 600; }
+  .proj .meta { color: var(--muted); font-size: 13px; }
+  .steps { display: flex; gap: 6px; margin: 14px 0; flex-wrap: wrap; }
+  .step { font-size: 12px; padding: 3px 8px; border: 1px solid var(--hair); color: var(--muted); }
+  .step.done { border-color: var(--ink); color: var(--ink); }
+  .step.now { border-color: var(--accent); color: var(--accent); }
+  .thumbs { display: flex; gap: 8px; overflow-x: auto; margin: 10px 0; }
+  .thumbs img { height: 84px; border: 1px solid var(--hair); }
+  video { max-width: 420px; width: 100%; border: 1px solid var(--hair); background: #000; }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>anythingtoexplainer</h1>
+  <div class="meta">create a film, hand the prompt to your agent, watch the files land</div>
+  <div class="where" id="workspace"></div>
+</header>
+<main>
+  <section>
+    <h2>New film</h2>
+    <label for="topic">Topic</label>
+    <input type="text" id="topic" placeholder="retrieval-augmented generation" />
+    <div class="row" style="margin-top:12px">
+      <div>
+        <label for="style">Style</label>
+        <select id="style"><option value="paper">paper</option><option value="instrument">instrument</option><option value="poster">poster</option></select>
+      </div>
+      <div>
+        <label for="minutes">Minutes</label>
+        <input type="number" id="minutes" value="3" min="2" max="5" />
+      </div>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" id="subtitles" checked /> subtitles</label>
+      <span class="meta">cap: 5 minutes</span>
+    </div>
+    <div style="margin-top:14px"><button id="create">Create project</button></div>
+    <div class="prompt" id="prompt"><pre id="promptText"></pre><button class="ghost" id="copy">Copy prompt</button></div>
+  </section>
+  <section>
+    <h2>Projects</h2>
+    <div id="projects"><p class="empty">No projects yet. Create one, then paste its prompt into your agent.</p></div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let created = null;
+
+async function refresh() {
+  const state = await (await fetch('/api/state')).json();
+  $('workspace').textContent = state.workspace;
+  if (created) {
+    const found = state.projects.find((p) => p.name === created);
+    if (found) { showPrompt(found.prompt); }
+  }
+  $('projects').innerHTML = state.projects.length ? state.projects.map(card).join('') : '<p class="empty">No projects yet. Create one, then paste its prompt into your agent.</p>';
+}
+
+function card(p) {
+  const steps = ['scaffold','research','narration','voiceover','storyboard','shots','render']
+    .map((s) => `<span class="step ${p.stages[s] ? 'done' : ''} ${p.stage === s ? 'now' : ''}">${s}</span>`).join('');
+  const thumbs = p.stills.map((s) => `<img src="/media/${encodeURIComponent(p.name)}/${s}" alt="" loading="lazy" />`).join('');
+  const clip = p.clips.length ? `<video controls preload="metadata" src="/media/${encodeURIComponent(p.name)}/renders/${encodeURIComponent(p.clips[0])}"></video>` : '';
+  return `<article class="proj">
+    <h3>${esc(p.name)}</h3>
+    <div class="meta">${esc(p.style)} pack · ${p.done}/${p.total} stages${p.note ? ' · ' + esc(p.note) : ''}</div>
+    <div class="steps">${steps}</div>
+    ${thumbs ? `<div class="thumbs">${thumbs}</div>` : ''}
+    ${clip}
+    <div style="margin-top:10px"><button class="ghost" data-prompt="${esc(p.prompt)}">Copy prompt</button></div>
+  </article>`;
+}
+
+function showPrompt(text) {
+  $('promptText').textContent = text;
+  $('prompt').style.display = 'block';
+}
+
+$('copy').onclick = () => navigator.clipboard.writeText($('promptText').textContent);
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-prompt]');
+  if (b) navigator.clipboard.writeText(b.dataset.prompt);
+});
+
+$('create').onclick = async () => {
+  $('create').disabled = true;
+  const body = {topic: $('topic').value, style: $('style').value, minutes: Number($('minutes').value) || 3, subtitles: $('subtitles').checked};
+  const res = await fetch('/api/projects', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+  const out = await res.json();
+  $('create').disabled = false;
+  if (out.error) { alert(out.error); return; }
+  created = out.created;
+  await refresh();
+};
+
+refresh();
+setInterval(refresh, 2500);
+</script>
+</body>
+</html>

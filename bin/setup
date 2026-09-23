@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# anythingtoexplainer setup / doctor
+#
+#   bin/setup            check the machine, print the exact install command for anything missing
+#   bin/setup --yes      same, then run those commands (system installs use sudo; venv/npm do not)
+#   bin/setup doctor     pass/fail report only; exit 1 if anything is missing
+#
+# Targets Linux and macOS. Windows: use WSL and run this there.
+set -uo pipefail
+
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+VENV=${A2E_VENV:-$HOME/.venvs/a2e}
+PIP_DEPS="numpy pillow scipy kokoro soundfile fonttools"
+MODE=setup
+YES=0
+for arg in "$@"; do
+  case "$arg" in
+    doctor) MODE=doctor ;;
+    --yes|-y) YES=1 ;;
+    *) echo "usage: bin/setup [doctor] [--yes]"; exit 2 ;;
+  esac
+done
+
+OS=unknown
+case "$(uname -s)" in
+  Linux) OS=linux ;;
+  Darwin) OS=macos ;;
+  MINGW*|MSYS*|CYGWIN*) OS=windows ;;
+esac
+
+# Package-manager commands per OS, used both as instructions and with --yes
+pkgs() { # $1 = comma-separated logical names
+  case "$OS" in
+    macos) echo "brew install $(echo "$1" | tr ',' ' ' | sed 's/python3/python@3.12/; s/imagemagick/imagemagick/; s/chrome//')" ;;
+    linux)
+      if command -v apt-get >/dev/null; then echo "sudo apt-get update && sudo apt-get install -y $(echo "$1" | tr ',' ' ' | sed 's/python3/python3 python3-venv python3-pip/; s/imagemagick/imagemagick/; s/chrome//')"; 
+      elif command -v dnf >/dev/null; then echo "sudo dnf install -y $(echo "$1" | tr ',' ' ' | sed 's/python3/python3 python3-pip/; s/imagemagick/ImageMagick/; s/chrome//')";
+      else echo "install manually: $1"; fi ;;
+    *) echo "install manually: $1" ;;
+  esac
+}
+
+ok=0; missing=0
+pass() { printf '  ok    %s\n' "$1"; ok=$((ok+1)); }
+fail() { printf '  MISS  %s%s\n' "$1" "${2:+  ->  $2}"; missing=$((missing+1)); }
+
+echo "anythingtoexplainer $MODE  (root: $ROOT, venv: $VENV)"
+
+# ---- runtimes ----
+if command -v node >/dev/null; then
+  NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]')
+  if [ "$NODE_MAJOR" -ge 18 ]; then pass "node $(node -v)"; else fail "node $(node -v) (need >= 18)" "$(pkgs node)"; fi
+else fail "node (>= 18)" "$(pkgs node)"; fi
+command -v npm >/dev/null && pass "npm $(npm -v)" || fail "npm" "$(pkgs node)"
+if command -v python3 >/dev/null; then
+  if python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)'; then pass "python3 $(python3 -V 2>&1 | cut -d' ' -f2)"; else fail "python3 >= 3.10" "$(pkgs python3)"; fi
+else fail "python3 (>= 3.10)" "$(pkgs python3)"; fi
+
+# ---- tools ----
+command -v ffmpeg >/dev/null && pass "ffmpeg" || fail "ffmpeg (frame extraction / transcoding)" "$(pkgs ffmpeg)"
+command -v rsync >/dev/null && pass "rsync" || fail "rsync (project scaffolding)" "$(pkgs rsync)"
+if command -v convert >/dev/null || command -v magick >/dev/null; then pass "ImageMagick"; else fail "ImageMagick (convert/magick)" "$(pkgs imagemagick)"; fi
+
+# ---- browser (Remotion's own download stalls on some networks; use a system browser) ----
+BROWSER=""
+for c in "${CHROME_PATH:-}" google-chrome google-chrome-stable chromium chromium-browser; do
+  [ -n "$c" ] && command -v "$c" >/dev/null 2>&1 && { BROWSER=$(command -v "$c"); break; }
+done
+[ -z "$BROWSER" ] && [ -x "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ] && BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+if [ -n "$BROWSER" ]; then pass "browser $BROWSER"; else fail "Chrome or Chromium (Remotion renders with it)" "install Chrome, or let Remotion download one on first render"; fi
+
+# ---- python packages ----
+if [ -x "$VENV/bin/python" ]; then
+  if "$VENV/bin/python" -c 'import importlib.util,sys; sys.exit(0 if all(importlib.util.find_spec(m) for m in ("numpy","PIL","scipy","kokoro","soundfile")) else 1)' 2>/dev/null; then
+    pass "python packages ($PIP_DEPS)"
+  else
+    fail "python packages in $VENV ($PIP_DEPS)" "$VENV/bin/pip install $PIP_DEPS"
+  fi
+else fail "python venv $VENV" "python3 -m venv $VENV && $VENV/bin/pip install $PIP_DEPS"; fi
+
+# ---- template dependencies ----
+if [ -d "$ROOT/template/node_modules" ]; then pass "template/node_modules"; else fail "template dependencies" "cd $ROOT/template && npm install"; fi
+
+# ---- actions ----
+run_installs() {
+  echo "installing what can be installed without a system package manager..."
+  if [ ! -x "$VENV/bin/python" ]; then
+    python3 -m venv "$VENV" || return 1
+  fi
+  "$VENV/bin/pip" install --quiet --upgrade pip && "$VENV/bin/pip" install --quiet $PIP_DEPS || return 1
+  [ -d "$ROOT/template/node_modules" ] || (cd "$ROOT/template" && npm install --silent) || return 1
+  echo "done"
+}
+
+if [ "$MODE" = setup ] && [ "$YES" = 1 ] && [ "$missing" -gt 0 ]; then
+  run_installs
+  echo "rerun 'bin/setup doctor' to confirm the report"
+elif [ "$MODE" = setup ] && [ "$missing" -gt 0 ]; then
+  echo
+  echo "$missing item(s) missing. Rerun with --yes to install the venv/npm parts, or run the commands above."
+fi
+
+# ---- write the detected browser so Remotion does not download its own ----
+if [ -n "$BROWSER" ] && [ "$MODE" = setup ]; then
+  if ! grep -qs "^REMOTION_BROWSER_EXECUTABLE=" "$ROOT/template/.env" 2>/dev/null; then
+    printf 'REMOTION_BROWSER_EXECUTABLE=%s\n' "$BROWSER" >> "$ROOT/template/.env"
+    echo "wrote REMOTION_BROWSER_EXECUTABLE=$BROWSER to template/.env"
+  fi
+fi
+
+echo
+echo "$ok ok, $missing missing"
+if [ "$MODE" = doctor ] && [ "$missing" -gt 0 ]; then exit 1; fi
+if [ "$MODE" = setup ] && [ "$missing" -gt 0 ] && [ "$YES" = 0 ]; then exit 1; fi
+exit 0

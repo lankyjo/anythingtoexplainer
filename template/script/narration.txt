@@ -1,0 +1,7 @@
+# Narration template: delete this comment and write the script per reference/narration-storyboard.md.
+# `# CHAPTER n Title` starts a chapter; one sentence per line; `|` splits subtitle blocks only
+# (each block <= 48 characters; English blocks are joined with a space for the TTS engine).
+# CHAPTER 1 First chapter
+First sentence|split into subtitle blocks
+# CHAPTER 2 Second chapter
+First sentence of chapter two
