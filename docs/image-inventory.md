@@ -5,6 +5,9 @@ this repo (sample stills and contrast sheets); no external or stock images are c
 
 | Image | What it shows | Checked |
 |---|---|---|
+| `examples/paper/sample.gif` | Paper sample, first 6 seconds (title + first shots), rendered from code | English only |
+| `examples/instrument/sample.gif` | Instrument sample, first 6 seconds | English only |
+| `examples/poster/sample.gif` | Poster sample, first 6 seconds | English only |
 | `examples/paper-contrast/01_focal_point.jpg` | BAD/GOOD pair: one focal point vs four equal statements | English only |
 | `examples/paper-contrast/02_density.jpg` | BAD/GOOD pair: rows squeezed vs rows with air | English only |
 | `examples/paper-contrast/03_accent_dosage.jpg` | BAD/GOOD pair: every row accented vs the current step only | English only |

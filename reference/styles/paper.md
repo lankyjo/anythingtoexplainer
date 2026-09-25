@@ -64,6 +64,8 @@ All timings come from `src/common/chromeSpec.ts`; never hand-place a card in a s
 ## 5. Primitives
 
 Import from `src/ui.tsx` (the active-pack facade), never from the pack folder directly.
+Recognisable objects (headphones, microphones, people) and the geometry kit live in `src/common`;
+see `reference/drawing-objects.md`.
 
 | Primitive | Props | Use |
 |---|---|---|
@@ -93,6 +95,11 @@ Calm and mechanical: rises and fades, hairline wipes, counters. No bounce, no ov
 no glow. Entrance 20-24 frames, exit 12 frames. Every sentence moves something; after the entrance,
 hold with a wipe, a counter or a 1.0 -> 1.03 push. Frame budgets and the still-frame rules are in
 `composition-and-light.md`.
+
+**The reading rule.** Every shot carries one continuously moving element, or the full-resolution
+motion pass fails it however good the beats look. In this pack that element is the reading rule: a
+3px ink hairline at 45% opacity sweeping the content area on an 80-frame sine cycle (`ScanLine` in
+the sample shots). It is also the cheapest way to give a shot its "constant motion layer".
 
 ## 8. Contrast pairs
 

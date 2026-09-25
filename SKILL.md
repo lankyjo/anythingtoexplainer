@@ -42,12 +42,13 @@ follow from it. **Goal: match the sample films' quality** - watch the pack sampl
 ## Checkpoints (stop and wait for the user)
 
 1. **Style and duration** (asked in stage 1, before writing copy). Ask both, assume neither:
-   "Which style - paper, instrument or poster? How long - 2-3 minutes or up to 5?" Nothing longer
-   than 5 minutes. Duration drives sentence count, shot count and build groups from the table below;
-   chapter count follows the content structure, not the duration.
+   "Which style - paper, instrument or poster? How long - 1 minute, 2-3 minutes, or up to 5?"
+   Nothing longer than 5 minutes. Duration drives sentence count, shot count and build groups from the
+   table below; chapter count follows the content structure, not the duration.
 
    | Duration | Words | Sentences / shots | Build groups (5-7 shots each) | Production time |
    |---|---|---|---|---|
+   | 1 min | 100-130 | 11-15 | 1-2 | ~20 min |
    | 2-3 min | 280-420 | 24-32 | 4-6 | ~1 hour |
    | 3-5 min | 420-700 | 40-50 | 8 | ~2 hours |
 
@@ -98,6 +99,9 @@ Stage 4 - chrome and primitives (10 min, main session): packs ship with title/ch
 chrome (`src/styles/<pack>/chrome.tsx`), primitives (`primitives.tsx`) and the pack backdrop. Add 2-5
 topic icons to the pack primitives; check with
 `scripts/still.sh Overlay 40,<chapter-card frame>,<rail frame>,<credit frame> <abs path> ov`.
+**If the film names a physical object, draw the object recognisably** - the drawing kit
+(`src/common/draw.tsx`, `objects.tsx`) and the method are in `reference/drawing-objects.md`; a label
+over an abstract stand-in reads as a placeholder.
 
 Stage 5a - pilot (15 min, 1 agent): dispatch **G1** only (the first chapter's opening shots); when it
 lands, `scripts/preview.sh 30` -> checkpoint 4.

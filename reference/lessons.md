@@ -506,3 +506,41 @@
   spacing). An 11-digit number at 100px is ~900px wide and, centred at x400, crosses the left
   boundary; a 12-character Audiowide line at 110px is ~1100px, already at the 1220 boundary.
   Multiply every headline at storyboard time.
+
+---
+
+# Film 6, "How noise-cancelling headphones work" (2026-09-23, first film on the rewritten pipeline, 13 shots / 56 s, one build pass inline)
+
+- **The 1-minute tier was missing from SKILL.md.** A user asked for 1 minute; the table started at
+  2-3. Added: 100-130 words, 11-15 sentences/shots, 1-2 build groups, ~20 minutes. The first draft
+  came out 18% short and two sentences were added (the rule already said >15% off -> adjust).
+- **Every shot needs one continuously moving element, not just entrances.** SC07 looked fine frame by
+  frame and passed the composition metrics, but motion_check caught a 1.2 s static stretch after the
+  frequency bar finished wiping (80% still frames). Adding the reading rule fixed it. In Paper that
+  rule is now written into the pack guide; treat it as part of the grammar, not a hack.
+- **Read stills at every beat, not just the first frame.** Two layout defects survived the code
+  review and were only visible in stills: two labels landing on the same baseline (SC04 `trough` /
+  `zero`) and a headset band floating away from its cups (SC12). Both were one-line fixes before the
+  final render.
+- **The metric agrees with the eye when the design is right.** Final numbers for the film:
+  frame_metrics high 0 / mid 0 / low 0, motion_check 13/13 - the first film on this pipeline to hit
+  zero composition flags, and the run took about 40 minutes including research.
+
+## Objects are not diagrams (2026-09-25, from user review of film 6)
+
+- The film explained noise-cancelling headphones and never showed a headphone: waves, rings and
+  hairlines carried every beat, and the one "microphone" was a rounded rectangle. The user's verdict
+  was blunt and correct: "I did not see one proper SVG of a headphone."
+- **The failure was not drawing skill, it was vocabulary.** The packs shipped abstract primitives and
+  nothing else, so every topic got abstracted into the same grammar. Fix: `reference/drawing-objects.md`
+  plus a real kit - `project3` / `Wire` / `Box3` / `Cylinder` / `Poly` / `SOLIDS` / `Marks` in
+  `common/draw.tsx`, and `Headphones` / `Mic` / `Person` in `common/objects.tsx` - and a rule in
+  SKILL.md stage 4: if the narration names a physical object, draw the object.
+- **How to get detail without hand-written paths**: parameters and loops (a colonnade is `count`
+  columns, a crowd is a seeded `Marks` call, a solid is vertices + an edge rule). The token cost of a
+  complex SVG is a function of how many *parameters* it has, not how many points.
+- **Verify recognisability at final size**: render one still and name the object without reading the
+  caption. If you cannot, an identifying detail is missing (the headphone needs band + cups + pads;
+  the mic needs capsule + grille + basket).
+- Re-render after the fix: same film, same timing, QC unchanged (0/0/0, motion 13/13) with the
+  objects in - richer frames did not cost a single composition flag.

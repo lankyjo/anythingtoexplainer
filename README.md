@@ -10,14 +10,26 @@ skill asks which pack and how long (2-5 minutes) before it writes anything.
 
 ## Samples
 
-The same 33-second RAG script, rendered by all three packs. Same narration, same shots, different
-pack: only `config.style` changes.
+The same 33-second RAG script, rendered by all three packs. Same narration, same shots - only
+`config.style` changes.
 
-| Pack | Clip | Stills | QC |
-|---|---|---|---|
-| paper | [`examples/paper/sample.mp4`](examples/paper/sample.mp4) | [`examples/paper/frames/`](examples/paper/frames/) | high 0 / mid 0 / low 2 |
-| instrument | [`examples/instrument/sample.mp4`](examples/instrument/sample.mp4) | [`examples/instrument/frames/`](examples/instrument/frames/) | high 0 / mid 0 / low 1 |
-| poster | [`examples/poster/sample.mp4`](examples/poster/sample.mp4) | [`examples/poster/frames/`](examples/poster/frames/) | high 0 / mid 0 / low 0 |
+### Paper (default)
+
+![Paper sample](examples/paper/sample.gif)
+
+[clip](examples/paper/sample.mp4) · [stills](examples/paper/frames/) · QC high 0 / mid 0 / low 2
+
+### Instrument
+
+![Instrument sample](examples/instrument/sample.gif)
+
+[clip](examples/instrument/sample.mp4) · [stills](examples/instrument/frames/) · QC high 0 / mid 0 / low 1
+
+### Poster
+
+![Poster sample](examples/poster/sample.gif)
+
+[clip](examples/poster/sample.mp4) · [stills](examples/poster/frames/) · QC high 0 / mid 0 / low 0
 
 The Paper pack also ships a good/bad sheet for its four composition rules:
 [`examples/paper-contrast/`](examples/paper-contrast/).
@@ -32,6 +44,11 @@ The Paper pack also ships a good/bad sheet for its four composition rules:
 - **How**: the agent researches with sources, writes the narration, synthesises the voiceover
   (kokoro-82m, local), storyboards every shot, then builds the shots and runs quantitative QC
   (`frame_metrics.py`, `motion_check.py`, `selfcheck.py`) against written criteria.
+- **Objects, not placeholders**: when a film names a physical thing - headphones, a microphone, a
+  temple, a crowd - the frame draws a recognisable object from parametric geometry (projection,
+  wireframes, seeded repetition) rather than labelling an abstract stand-in
+  ([`reference/drawing-objects.md`](reference/drawing-objects.md)). Organic subjects can use an
+  imported picture with a licence note.
 - **Time**: roughly 30-90 minutes of wall clock for a 3-5 minute film on a normal laptop.
 - **Checkpoints**: the skill stops for style + duration, the narration, the voice and the first 30
   seconds.
@@ -84,7 +101,7 @@ composition, motion budgets, narration, the storyboard format, agent protocols -
 |---|---|
 | [`template/`](template/) | the Remotion project every film is scaffolded from (packs, chrome, camera, scripts) |
 | [`template/scripts/`](template/scripts/) | voiceover + timeline, storyboard filling, stills, preview, render, three QC tools |
-| [`reference/`](reference/) | style guide, pack guides, composition, motion vocabulary, narration, agent protocols, lessons |
+| [`reference/`](reference/) | style guide, pack guides, composition, motion vocabulary, narration, drawing objects, agent protocols, lessons |
 | [`bin/setup`](bin/setup), [`bin/explain`](bin/explain) | environment check/install and film launcher |
 | [`ui/`](ui/) | local companion page (Node built-ins only) |
 | [`selftest.py`](selftest.py), [`ui/selftest.mjs`](ui/selftest.mjs) | runnable checks: language guard, width table, audio-vs-timeline, UI server |

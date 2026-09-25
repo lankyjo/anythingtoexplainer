@@ -60,7 +60,7 @@ else
   missing=0
   while IFS= read -r img; do
     grep -qF "$img" "$INV" || { echo "not in inventory: $img"; missing=1; }
-  done < <(git ls-files | grep -E '\.(png|jpg|jpeg)$')
+  done < <(git ls-files | grep -E '\.(png|jpg|jpeg|gif)$')
   [ "$missing" = 0 ] && echo "ok: every committed image is listed in $INV" || fail=1
 fi
 
